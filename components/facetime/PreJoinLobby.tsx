@@ -133,9 +133,9 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
       <header className="w-full max-w-4xl flex items-center justify-between pb-3 pt-1 shrink-0 z-20">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-xs shadow-md shadow-emerald-500/20">
-            FT
+            <Video className="w-4 h-4 fill-current" />
           </div>
-          <span className="font-semibold text-base tracking-tight text-white">FaceTime</span>
+          <span className="font-semibold text-base tracking-tight text-white">{t.appTitle}</span>
         </div>
         <LanguageSwitcher />
       </header>

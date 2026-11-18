@@ -158,21 +158,40 @@ export default function ControlsBar({
   };
 
   const toggleScreenShare = async () => {
-    if (localParticipant) {
-      try {
-        if (!isScreenShareEnabled) {
+    if (!localParticipant) return;
+
+    try {
+      if (!isScreenShareEnabled) {
+        if (
+          typeof navigator === "undefined" ||
+          !navigator.mediaDevices ||
+          typeof navigator.mediaDevices.getDisplayMedia !== "function"
+        ) {
+          showToast("⚠️ " + (t.screenShareNotSupported || "Ekran ulashish qo'llab-quvvatlanmaydi"));
+          return;
+        }
+
+        try {
+          // Clean standard display capture without experimental flags that fail on tablets/iPadOS
           await localParticipant.setScreenShareEnabled(true, {
             audio: false,
-            selfBrowserSurface: "exclude",
-            surfaceSwitching: "include",
-            preferCurrentTab: false,
-            resolution: { width: 1280, height: 720, frameRate: 15 },
           });
-        } else {
-          await localParticipant.setScreenShareEnabled(false);
+        } catch (optionsErr: any) {
+          console.warn("Screen share with audio:false failed, retrying bare:", optionsErr);
+          // Fallback for tablets where any extra options cause rejection
+          await localParticipant.setScreenShareEnabled(true);
         }
-      } catch (e) {
-        console.warn("Screen share cancelled or failed:", e);
+      } else {
+        await localParticipant.setScreenShareEnabled(false);
+      }
+    } catch (e: any) {
+      console.warn("Screen share cancelled or failed:", e);
+      if (e?.name === "NotAllowedError") {
+        // User cancelled the prompt
+      } else if (e?.name === "NotFoundError" || e?.name === "NotSupportedError") {
+        showToast("⚠️ " + (t.screenShareNotSupported || "Ekran ulashish qo'llab-quvvatlanmaydi"));
+      } else {
+        showToast("⚠️ " + (e?.message || "Ekran ulashishda xatolik"));
       }
     }
   };

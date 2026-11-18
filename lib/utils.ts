@@ -6,15 +6,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function generateRoomId(): string {
-  // Generate human-friendly Apple FaceTime style room ID: e.g., 'cal-849-219' or 'apple-meet-abc'
-  const randomChars = (len: number) => {
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-    let res = "";
-    for (let i = 0; i < len; i++) {
-      res += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return res;
-  };
-
-  return `${randomChars(3)}-${randomChars(4)}-${randomChars(3)}`;
+  // 4-digit numeric room code, e.g. '4829'
+  return Math.floor(1000 + Math.random() * 9000).toString();
 }

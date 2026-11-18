@@ -165,15 +165,7 @@ function RoomHeader({ roomId }: { roomId: string }) {
 
   return (
     <header className="absolute top-[max(0.75rem,env(safe-area-inset-top))] left-0 right-0 z-40 px-3 sm:px-6 flex items-center justify-between pointer-events-none">
-      {/* Left: Just the timer with glowing green active dot (NO "FaceTime" text) */}
-      <div className="flex items-center gap-2 pointer-events-auto">
-        <div className="glass-pill px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full flex items-center gap-2 text-xs font-semibold text-white/90 shadow-md">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-zinc-200 font-mono tracking-wider">{formatTime(seconds)}</span>
-        </div>
-      </div>
-
-      {/* Right: Only the Shield icon. On click, expands to reveal time and full room code! */}
+      {/* Left: Shield icon. On click, expands to reveal room info & duration */}
       <div className="relative flex items-center gap-2 pointer-events-auto">
         <button
           type="button"
@@ -183,14 +175,14 @@ function RoomHeader({ roomId }: { roomId: string }) {
               ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 ring-2 ring-emerald-500/30"
               : "text-zinc-300 hover:text-white hover:bg-white/15"
           }`}
-          title="Xona ma'lumotlari"
+          title="Xavfsizlik va xona ma'lumotlari"
         >
           <Shield className="w-4 h-4 text-emerald-400" />
         </button>
 
         {/* Dropdown Card when Shield Icon is clicked */}
         {isDetailsOpen && (
-          <div className="absolute top-11 right-0 glass-panel p-4 rounded-3xl border border-white/15 shadow-2xl w-64 text-left animate-in fade-in slide-in-from-top-2 duration-200 z-50">
+          <div className="absolute top-11 left-0 glass-panel p-4 rounded-3xl border border-white/15 shadow-2xl w-64 text-left animate-in fade-in slide-in-from-top-2 duration-200 z-50">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Xona ma'lumotlari
@@ -220,6 +212,9 @@ function RoomHeader({ roomId }: { roomId: string }) {
           </div>
         )}
       </div>
+
+      {/* Right side is intentionally empty for clean, distraction-free view */}
+      <div />
     </header>
   );
 }

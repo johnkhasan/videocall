@@ -23,6 +23,8 @@ export interface Translations {
   joinCardTitle: string;
   joinCardDesc: string;
   roomInputPlaceholder: string;
+  orDivider: string;
+  screenShareNotSupported: string;
   joinCallBtn: string;
   linkReadyLabel: string;
   copyLinkBtn: string;
@@ -81,7 +83,7 @@ export interface Translations {
 
 const translations: Record<Language, Translations> = {
   uz: {
-    appTitle: "FaceTime",
+    appTitle: "Videocall",
     room: "Xona",
     livekitBadge: "HD Video",
     secureConnection: "Xavfsiz va shifrlangan aloqa",
@@ -94,13 +96,15 @@ const translations: Record<Language, Translations> = {
     startCallCardTitle: "Yangi Qoʻngʻiroq",
     startCallCardDesc:
       "Bir marta bosish orqali yangi video xona oching va suhbatni boshlang.",
-    startCallBtn: "Qoʻngʻiroqni boshlash",
+    startCallBtn: "Qoʻngʻiroq yaratish",
     generateLinkBtn: "Havola yaratish (keyinroq ulashish)",
     joinCardTitle: "Qoʻshilish",
     joinCardDesc:
-      "Doʻstingiz yuborgan taklif havolasi yoki xona kodini kiriting.",
-    roomInputPlaceholder: "Xona kodi yoki linkni qoʻying",
-    joinCallBtn: "Xonaga kirish",
+      "Doʻstingiz yuborgan 4 xonali kod yoki taklif havolasini kiriting.",
+    roomInputPlaceholder: "4 xonali kod (masalan: 1234)",
+    orDivider: "yoki",
+    screenShareNotSupported: "Ekran ulashish ushbu qurilma/brauzerda qoʻllab-quvvatlanmaydi",
+    joinCallBtn: "Qoʻshilish",
     linkReadyLabel: "Taklif havolasi tayyor:",
     copyLinkBtn: "Nusxalash",
     copiedBtn: "Nusxalandi",
@@ -113,9 +117,9 @@ const translations: Record<Language, Translations> = {
     feature3Desc: "Suhbat davomida jonli va interaktiv emojilar.",
     feature4Title: "Yuqori Sifat & Xavfsizlik",
     feature4Desc: "Kristalldek tiniq HD audio/video va toʻliq shifrlangan aloqa.",
-    footerText: "FaceTime Web • Tezkor, xavfsiz va qulay video qoʻngʻiroqlar",
+    footerText: "Xavfsiz va shifrlangan aloqa • Roʻyxatdan oʻtish shart emas",
 
-    lobbyTitle: "FaceTime Qoʻngʻiroq",
+    lobbyTitle: "Video Qoʻngʻiroq",
     lobbySubtitle:
       "Xonaga kirishdan oldin ismingizni kiriting va qurilmalaringizni sozlang.",
     cameraOff: "Kamera oʻchirilgan",
@@ -156,7 +160,7 @@ const translations: Record<Language, Translations> = {
     dismissBtn: "Keyinroq",
   },
   en: {
-    appTitle: "FaceTime",
+    appTitle: "Videocall",
     room: "Room",
     livekitBadge: "HD Video",
     secureConnection: "End-to-End Encrypted Call",
@@ -169,13 +173,15 @@ const translations: Record<Language, Translations> = {
     startCallCardTitle: "New Call",
     startCallCardDesc:
       "Instantly create a private video room and start your call.",
-    startCallBtn: "Start Call",
+    startCallBtn: "Create Call",
     generateLinkBtn: "Create Link (share later)",
     joinCardTitle: "Join Call",
     joinCardDesc:
-      "Enter an invite link or room code received from a friend.",
-    roomInputPlaceholder: "Paste room link or code",
-    joinCallBtn: "Join Room",
+      "Enter 4-digit code or invite link from your friend.",
+    roomInputPlaceholder: "4-digit code (e.g. 1234)",
+    orDivider: "or",
+    screenShareNotSupported: "Screen sharing is not supported on this device/browser",
+    joinCallBtn: "Join",
     linkReadyLabel: "Invite link is ready:",
     copyLinkBtn: "Copy Link",
     copiedBtn: "Copied",
@@ -188,9 +194,9 @@ const translations: Record<Language, Translations> = {
     feature3Desc: "Floating live animated emoji reactions during the call.",
     feature4Title: "HD Quality & Security",
     feature4Desc: "Crystal-clear HD audio/video and fully encrypted communication.",
-    footerText: "FaceTime Web • Fast, secure and crystal-clear video calls",
+    footerText: "End-to-end encrypted video calls • No registration required",
 
-    lobbyTitle: "FaceTime Call",
+    lobbyTitle: "Video Call",
     lobbySubtitle:
       "Adjust your camera and microphone, and enter your name before joining.",
     cameraOff: "Camera is off",
@@ -231,7 +237,7 @@ const translations: Record<Language, Translations> = {
     dismissBtn: "Later",
   },
   ru: {
-    appTitle: "FaceTime",
+    appTitle: "Videocall",
     room: "Комната",
     livekitBadge: "HD Видео",
     secureConnection: "Защищенный зашифрованный звонок",
@@ -244,13 +250,15 @@ const translations: Record<Language, Translations> = {
     startCallCardTitle: "Новый звонок",
     startCallCardDesc:
       "Создайте комнату в один клик и начните видеозвонок прямо сейчас.",
-    startCallBtn: "Начать звонок",
+    startCallBtn: "Создать звонок",
     generateLinkBtn: "Создать ссылку (поделиться позже)",
     joinCardTitle: "Присоединиться",
     joinCardDesc:
-      "Введите ссылку-приглашение или код комнаты от собеседника.",
-    roomInputPlaceholder: "Вставьте ссылку или код",
-    joinCallBtn: "Войти в комнату",
+      "Введите 4-значный код или ссылку-приглашение.",
+    roomInputPlaceholder: "4-значный код (напр: 1234)",
+    orDivider: "или",
+    screenShareNotSupported: "Демонстрация экрана не поддерживается на этом устройстве/браузере",
+    joinCallBtn: "Войти",
     linkReadyLabel: "Ссылка готова:",
     copyLinkBtn: "Копировать",
     copiedBtn: "Скопировано",
@@ -263,9 +271,9 @@ const translations: Record<Language, Translations> = {
     feature3Desc: "Всплывающие анимированные эмодзи во время звонка.",
     feature4Title: "HD Качество и Защита",
     feature4Desc: "Кристально чистое видео, чистый звук и полная безопасность.",
-    footerText: "FaceTime Web • Быстрые, защищенные и удобные видеозвонки",
+    footerText: "Зашифрованная видеосвязь • Без регистрации",
 
-    lobbyTitle: "Звонок FaceTime",
+    lobbyTitle: "Видеозвонок",
     lobbySubtitle:
       "Настройте камеру и микрофон и укажите имя перед входом в комнату.",
     cameraOff: "Камера отключена",
