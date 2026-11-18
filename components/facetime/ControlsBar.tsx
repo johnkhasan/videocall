@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useLocalParticipant, useRoomContext } from "@livekit/components-react";
 import { sendReaction } from "./ReactionsOverlay";
+import { useLanguage } from "@/context/LanguageContext";
 
 const EMOJIS = ["❤️", "👍", "👏", "🎉", "🔥", "😂", "👋", "🚀"];
 
@@ -24,6 +25,7 @@ interface ControlsBarProps {
 }
 
 export default function ControlsBar({ participantCount, onLeave }: ControlsBarProps) {
+  const { t } = useLanguage();
   const room = useRoomContext();
   const {
     isMicrophoneEnabled,
@@ -103,7 +105,7 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
               ? "bg-white/15 hover:bg-white/25 text-white active:scale-95"
               : "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
           }`}
-          title={isMicrophoneEnabled ? "Mikrofonni o'chirish" : "Mikrofonni yoqish"}
+          title={isMicrophoneEnabled ? t.muteMic : t.unmuteMic}
         >
           {isMicrophoneEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
         </button>
@@ -116,7 +118,7 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
               ? "bg-white/15 hover:bg-white/25 text-white active:scale-95"
               : "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
           }`}
-          title={isCameraEnabled ? "Kamerani o'chirish" : "Kamerani yoqish"}
+          title={isCameraEnabled ? t.turnOffCam : t.turnOnCam}
         >
           {isCameraEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
         </button>
@@ -129,7 +131,7 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
               ? "bg-blue-500 text-white shadow-lg shadow-blue-500/30 hover:bg-blue-600"
               : "bg-white/15 hover:bg-white/25 text-white active:scale-95"
           }`}
-          title={isScreenShareEnabled ? "Ekran ulashishni to'xtatish" : "Ekranni ulashish"}
+          title={isScreenShareEnabled ? t.screenShareToggleOn : t.screenShareToggleOff}
         >
           <ScreenShare className="w-5 h-5" />
         </button>
@@ -142,7 +144,7 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
               ? "bg-amber-500/80 text-white ring-2 ring-amber-400"
               : "bg-white/15 hover:bg-white/25 text-white active:scale-95"
           }`}
-          title="Reaksiyalar (FaceTime Emojilar)"
+          title={t.reactionsTooltip}
         >
           <Smile className="w-5 h-5" />
         </button>
@@ -151,12 +153,12 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
         <button
           onClick={handleCopyLink}
           className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-white/15 hover:bg-white/25 text-white transition active:scale-95 relative"
-          title="Taklif havolasini nusxalash"
+          title={t.copyLinkBtn}
         >
           {copied ? <Check className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5" />}
           {copied && (
             <span className="absolute -top-8 px-2 py-0.5 rounded-md bg-black/80 text-emerald-400 text-[10px] font-medium whitespace-nowrap border border-emerald-500/30">
-              Nusxalandi!
+              {t.copiedBtn}
             </span>
           )}
         </button>
@@ -165,7 +167,7 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
         <button
           onClick={onLeave}
           className="w-12 h-11 sm:w-14 sm:h-12 px-4 rounded-full flex items-center justify-center bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-600/40 transition active:scale-95 ml-1"
-          title="Qo'ng'iroqni yakunlash"
+          title={t.endCallTooltip}
         >
           <PhoneOff className="w-5 h-5" />
         </button>

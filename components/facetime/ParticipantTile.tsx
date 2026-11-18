@@ -8,6 +8,7 @@ import {
   isTrackReference,
 } from "@livekit/components-react";
 import { MicOff, Pin, Volume2 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ParticipantTileProps {
   trackRef: TrackReferenceOrPlaceholder;
@@ -24,13 +25,14 @@ export default function ParticipantTile({
   className = "",
   onClick,
 }: ParticipantTileProps) {
+  const { t } = useLanguage();
   const participant = trackRef.participant;
   const isSpeaking = useIsSpeaking(participant);
 
   // Check if participant has camera enabled
   const hasVideo = isTrackReference(trackRef) && trackRef.publication && !trackRef.publication.isMuted;
   const isMuted = !participant.isMicrophoneEnabled;
-  const displayName = participant.name || participant.identity || (isLocal ? "Siz" : "Ishtirokchi");
+  const displayName = participant.name || participant.identity || (isLocal ? t.you : t.participant);
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
@@ -85,7 +87,7 @@ export default function ParticipantTile({
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
         <div className="flex items-center gap-1.5 glass-pill px-2.5 py-1 rounded-full text-xs font-medium text-white/90 shadow-md max-w-[85%] truncate">
           {isSpeaking && <Volume2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 animate-pulse" />}
-          <span className="truncate">{displayName} {isLocal && "(Siz)"}</span>
+          <span className="truncate">{displayName} {isLocal && `(${t.you})`}</span>
         </div>
 
         {isMuted && (
@@ -98,7 +100,7 @@ export default function ParticipantTile({
       {/* Local participant indicator */}
       {isLocal && is1on1PiP && (
         <div className="absolute top-2 left-2 glass-pill px-2 py-0.5 rounded-md text-[10px] text-zinc-300 font-semibold tracking-wide uppercase">
-          Siz
+          {t.you}
         </div>
       )}
     </div>

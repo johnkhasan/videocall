@@ -6,17 +6,18 @@ import {
   useTracks,
   useLocalParticipant,
   VideoTrack,
-  TrackReferenceOrPlaceholder,
   isTrackReference,
 } from "@livekit/components-react";
 import ParticipantTile from "./ParticipantTile";
 import { Copy, Users } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface VideoGridProps {
   roomId: string;
 }
 
 export default function VideoGrid({ roomId }: VideoGridProps) {
+  const { t } = useLanguage();
   const { localParticipant } = useLocalParticipant();
 
   // Get camera tracks (with placeholder so tiles render even when camera is off)
@@ -62,7 +63,7 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
             className="w-full h-full object-contain"
           />
           <div className="absolute top-4 left-4 glass-pill px-3 py-1 rounded-full text-xs text-white/90">
-            {screenShareTrack.participant.name || screenShareTrack.participant.identity} ekranini ulashmoqda
+            {screenShareTrack.participant.name || screenShareTrack.participant.identity} {t.screenSharingText}
           </div>
         </div>
 
@@ -126,9 +127,9 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
             <Users className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">Boshqalar kutilmoqda...</h3>
+            <h3 className="text-sm font-semibold text-white">{t.waitingTitle}</h3>
             <p className="text-xs text-zinc-400">
-              Qoʻngʻiroqqa qoʻshilishlari uchun ushbu havolani doʻstlaringizga yuboring.
+              {t.waitingDesc}
             </p>
           </div>
           <button
@@ -136,7 +137,7 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
             className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-black transition shrink-0 flex items-center gap-1.5 shadow-lg shadow-emerald-500/20"
           >
             <Copy className="w-3.5 h-3.5" />
-            <span>Havolani nusxalash</span>
+            <span>{t.copyLinkBtn}</span>
           </button>
         </div>
       </div>
@@ -144,7 +145,6 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
   }
 
   // CASE 4: Group FaceTime Mode (3+ participants)
-  // Dynamic Grid calculation
   const totalCount = cameraTracks.length;
   let gridCols = "grid-cols-1 sm:grid-cols-2";
   if (totalCount >= 5) {
