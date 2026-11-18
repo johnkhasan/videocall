@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  videocall:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: videocall-web
+    restart: unless-stopped
+    ports:
+      - "3005:3000"
+    environment:
+      - NODE_ENV=production
+      - LIVEKIT_API_KEY=puzzle
+      - LIVEKIT_API_SECRET=976ad7d7616afd0a8720edf40fe61714a7a6246510d494112102275d10b7205b
+      - LIVEKIT_URL=wss://rtc.puzzle.javohir.ru
+      - NEXT_PUBLIC_LIVEKIT_URL=wss://rtc.puzzle.javohir.ru
