@@ -63,6 +63,9 @@ export interface Translations {
   screenShareToggleOff: string;
   reactionsTooltip: string;
   endCallTooltip: string;
+  swapVideosTooltip: string;
+  splitView: string;
+  pipView: string;
   connectingText: string;
   connectionError: string;
   retryBtn: string;
@@ -136,6 +139,9 @@ const translations: Record<Language, Translations> = {
     screenShareToggleOff: "Ekranni ulashish",
     reactionsTooltip: "Reaksiyalar (FaceTime Emojilar)",
     endCallTooltip: "Qoʻngʻiroqni yakunlash",
+    swapVideosTooltip: "Darchalarni almashtirish (Katta/Kichik)",
+    splitView: "Yonma-yon (50/50)",
+    pipView: "PiP koʻrinishi",
     connectingText: "FaceTime xonasiga ulanmoqda...",
     connectionError: "Ulanishda xatolik yuz berdi",
     retryBtn: "Qaytadan urinish",
@@ -206,6 +212,9 @@ const translations: Record<Language, Translations> = {
     screenShareToggleOff: "Share screen",
     reactionsTooltip: "Reactions (FaceTime Emojis)",
     endCallTooltip: "End Call",
+    swapVideosTooltip: "Swap videos (Main / PiP)",
+    splitView: "Split View (50/50)",
+    pipView: "PiP View",
     connectingText: "Connecting to FaceTime room...",
     connectionError: "Failed to connect to room",
     retryBtn: "Try Again",
@@ -276,6 +285,9 @@ const translations: Record<Language, Translations> = {
     screenShareToggleOff: "Поделиться экраном",
     reactionsTooltip: "Реакции (FaceTime Эмодзи)",
     endCallTooltip: "Завершить звонок",
+    swapVideosTooltip: "Поменять окна местами (Основное / PiP)",
+    splitView: "Рядом (50/50)",
+    pipView: "Режим PiP",
     connectingText: "Подключение к комнате FaceTime...",
     connectionError: "Ошибка подключения к комнате",
     retryBtn: "Попробовать снова",

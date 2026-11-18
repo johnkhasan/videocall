@@ -9,8 +9,18 @@ import {
   isTrackReference,
 } from "@livekit/components-react";
 import ParticipantTile from "./ParticipantTile";
-import { Copy, Users, Pause, MonitorPlay } from "lucide-react";
+import {
+  Copy,
+  Users,
+  Pause,
+  MonitorPlay,
+  ArrowLeftRight,
+  Columns2,
+  Maximize2,
+  Move,
+} from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { motion } from "framer-motion";
 
 interface VideoGridProps {
   roomId: string;
@@ -19,6 +29,11 @@ interface VideoGridProps {
 export default function VideoGrid({ roomId }: VideoGridProps) {
   const { t } = useLanguage();
   const { localParticipant } = useLocalParticipant();
+
+  // 1-on-1 state: swap who is main vs PiP, and split view vs PiP view
+  const [is1on1Swapped, setIs1on1Swapped] = useState(false);
+  const [oneOnOneLayout, setOneOnOneLayout] = useState<"pip" | "split">("pip");
+  const pipContainerRef = useRef<HTMLDivElement>(null);
 
   // Get camera tracks (with placeholder so tiles render even when camera is off)
   const cameraTracks = useTracks(
@@ -89,26 +104,127 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
   // CASE 2: 1-on-1 FaceTime Mode (1 Remote participant + 1 Local user)
   if (remoteTracks.length === 1 && localTrack) {
     const remoteTrack = remoteTracks[0];
+    const primaryTrack = is1on1Swapped ? localTrack : remoteTrack;
+    const pipTrack = is1on1Swapped ? remoteTrack : localTrack;
+    const primaryIsLocal = is1on1Swapped;
+    const pipIsLocal = !is1on1Swapped;
 
+    // Sub-case: Split View (50/50 side by side)
+    if (oneOnOneLayout === "split") {
+      return (
+        <div className="relative w-full h-full p-3 sm:p-6 pb-24 flex flex-col items-center justify-center">
+          {/* Top layout toggle button */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
+            <button
+              type="button"
+              onClick={() => setOneOnOneLayout("pip")}
+              className="glass-pill px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-medium text-white/90 hover:text-white transition active:scale-95 shadow-lg border border-white/10"
+              title={t.pipView}
+            >
+              <Maximize2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{t.pipView}</span>
+            </button>
+          </div>
+
+          {/* Equal 50/50 Split View */}
+          <div className="w-full max-w-7xl h-full max-h-[88vh] grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 auto-rows-fr">
+            <div
+              className="w-full h-full min-h-[220px] cursor-pointer"
+              onClick={() => {
+                setIs1on1Swapped(false);
+                setOneOnOneLayout("pip");
+              }}
+              title="Kattalashtirish (Maximize)"
+            >
+              <ParticipantTile
+                trackRef={remoteTrack}
+                isLocal={false}
+              />
+            </div>
+            <div
+              className="w-full h-full min-h-[220px] cursor-pointer"
+              onClick={() => {
+                setIs1on1Swapped(true);
+                setOneOnOneLayout("pip");
+              }}
+              title="Kattalashtirish (Maximize)"
+            >
+              <ParticipantTile
+                trackRef={localTrack}
+                isLocal={true}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Default PiP Mode (Full-screen + Draggable PiP + Swap)
     return (
-      <div className="relative w-full h-full p-2 sm:p-4 pb-24 flex items-center justify-center overflow-hidden">
-        {/* Full-bleed Remote Participant (FaceTime style) */}
-        <div className="w-full h-full max-w-7xl max-h-[92vh] rounded-3xl overflow-hidden">
+      <div
+        ref={pipContainerRef}
+        className="relative w-full h-full p-2 sm:p-4 pb-24 flex items-center justify-center overflow-hidden"
+      >
+        {/* Top layout mode toggle button */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
+          <button
+            type="button"
+            onClick={() => setOneOnOneLayout("split")}
+            className="glass-pill px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-medium text-zinc-300 hover:text-white transition active:scale-95 shadow-lg border border-white/10"
+            title={t.splitView}
+          >
+            <Columns2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="hidden sm:inline">{t.splitView}</span>
+          </button>
+        </div>
+
+        {/* Full-bleed Primary Participant (FaceTime style) */}
+        <div className="w-full h-full max-w-7xl max-h-[92vh] rounded-3xl overflow-hidden shadow-2xl relative">
           <ParticipantTile
-            trackRef={remoteTrack}
-            isLocal={false}
+            trackRef={primaryTrack}
+            isLocal={primaryIsLocal}
             className="rounded-3xl"
           />
         </div>
 
-        {/* Floating Local PiP (Picture-in-Picture in top-right or bottom-right) */}
-        <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-30 transition-transform duration-300 hover:scale-105">
-          <ParticipantTile
-            trackRef={localTrack}
-            isLocal={true}
-            is1on1PiP={true}
-          />
-        </div>
+        {/* Draggable PiP Window (Framer Motion) */}
+        <motion.div
+          drag
+          dragConstraints={pipContainerRef}
+          dragElastic={0.08}
+          dragMomentum={false}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
+          className="absolute top-6 right-6 sm:top-8 sm:right-8 z-30 cursor-grab active:cursor-grabbing touch-none select-none group/pip"
+          style={{ willChange: "transform" }}
+        >
+          <div className="relative">
+            <ParticipantTile
+              trackRef={pipTrack}
+              isLocal={pipIsLocal}
+              is1on1PiP={true}
+              onClick={() => setIs1on1Swapped((prev) => !prev)}
+            />
+
+            {/* Quick Swap Button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIs1on1Swapped((prev) => !prev);
+              }}
+              className="absolute top-2 right-2 w-7 h-7 rounded-full glass-pill flex items-center justify-center text-white/90 hover:text-white hover:bg-emerald-500/80 transition shadow-lg border border-white/20 active:scale-90"
+              title={t.swapVideosTooltip}
+            >
+              <ArrowLeftRight className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Drag Handle Icon on hover */}
+            <div className="absolute bottom-1 right-1 opacity-0 group-hover/pip:opacity-75 transition pointer-events-none p-1">
+              <Move className="w-3 h-3 text-white/70" />
+            </div>
+          </div>
+        </motion.div>
       </div>
     );
   }
