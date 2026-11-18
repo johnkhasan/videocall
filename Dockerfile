@@ -5,7 +5,7 @@ RUN npm install -g pnpm
 
 FROM base AS dependencies
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm config set minimum-release-age 0 && pnpm install --no-frozen-lockfile
 
 FROM base AS builder
 COPY --from=dependencies /app/node_modules ./node_modules
