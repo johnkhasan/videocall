@@ -64,6 +64,7 @@ export interface Translations {
   reactionsTooltip: string;
   endCallTooltip: string;
   swapVideosTooltip: string;
+  switchCameraTooltip: string;
   splitView: string;
   pipView: string;
   connectingText: string;
@@ -140,6 +141,7 @@ const translations: Record<Language, Translations> = {
     reactionsTooltip: "Reaksiyalar (FaceTime Emojilar)",
     endCallTooltip: "Qoʻngʻiroqni yakunlash",
     swapVideosTooltip: "Darchalarni almashtirish (Katta/Kichik)",
+    switchCameraTooltip: "Kamerani almashtirish (Oldi / Orqa)",
     splitView: "Yonma-yon (50/50)",
     pipView: "PiP koʻrinishi",
     connectingText: "FaceTime xonasiga ulanmoqda...",
@@ -213,6 +215,7 @@ const translations: Record<Language, Translations> = {
     reactionsTooltip: "Reactions (FaceTime Emojis)",
     endCallTooltip: "End Call",
     swapVideosTooltip: "Swap videos (Main / PiP)",
+    switchCameraTooltip: "Switch camera (Front / Back)",
     splitView: "Split View (50/50)",
     pipView: "PiP View",
     connectingText: "Connecting to FaceTime room...",
@@ -286,6 +289,7 @@ const translations: Record<Language, Translations> = {
     reactionsTooltip: "Реакции (FaceTime Эмодзи)",
     endCallTooltip: "Завершить звонок",
     swapVideosTooltip: "Поменять окна местами (Основное / PiP)",
+    switchCameraTooltip: "Переключить камеру (Передняя / Задняя)",
     splitView: "Рядом (50/50)",
     pipView: "Режим PiP",
     connectingText: "Подключение к комнате FaceTime...",

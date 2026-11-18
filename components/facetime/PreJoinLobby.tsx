@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Mic, MicOff, Video, VideoOff, Copy, Check, Users, Shield, ArrowRight } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, Copy, Check, Users, Shield, ArrowRight, SwitchCamera } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 
 interface PreJoinLobbyProps {
   roomId: string;
-  onJoin: (username: string, initialAudio: boolean, initialVideo: boolean) => void;
+  onJoin: (username: string, initialAudio: boolean, initialVideo: boolean, initialFacingMode?: "user" | "environment") => void;
 }
 
 export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
@@ -15,20 +15,26 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
   const [username, setUsername] = useState("");
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
   const [copied, setCopied] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
 
-  // Start local camera preview
+  // Start local camera preview with facingMode
   useEffect(() => {
     let stream: MediaStream | null = null;
 
     async function initPreview() {
       try {
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        }
+
         stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
+          video: { facingMode },
           audio: true,
         });
         mediaStreamRef.current = stream;
@@ -36,6 +42,14 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
           videoRef.current.srcObject = stream;
         }
         setHasPermission(true);
+
+        // Detect if device has multiple cameras (e.g. mobile front/back)
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices.filter((d) => d.kind === "videoinput");
+        const isTouchOrMobile =
+          /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+          ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+        setHasMultipleCameras(videoInputs.length > 1 || isTouchOrMobile);
       } catch (err) {
         console.warn("Camera/Mic access issue:", err);
         setHasPermission(false);
@@ -49,6 +63,33 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
         stream.getTracks().forEach((track) => track.stop());
       }
     };
+  }, [facingMode]);
+
+  // Keyboard shortcuts (M for Mic, V for Video on laptop when input is not focused)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        setAudioEnabled((prev) => !prev);
+      } else if (e.key === "v" || e.key === "V") {
+        e.preventDefault();
+        setVideoEnabled((prev) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   // Update track state when toggles change
@@ -79,7 +120,11 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
       mediaStreamRef.current.getTracks().forEach((t) => t.stop());
     }
 
-    onJoin(username.trim(), audioEnabled, videoEnabled);
+    onJoin(username.trim(), audioEnabled, videoEnabled, facingMode);
+  };
+
+  const toggleCameraFacing = () => {
+    setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
   };
 
   return (
@@ -110,7 +155,7 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
                 autoPlay
                 playsInline
                 muted
-                className="w-full h-full object-cover video-mirrored"
+                className={`w-full h-full object-cover ${facingMode === "user" ? "video-mirrored" : ""}`}
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900/90 text-zinc-400">
@@ -131,7 +176,7 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
                     ? "bg-white/15 hover:bg-white/25 text-white active:scale-95"
                     : "bg-red-500/90 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
                 }`}
-                title={audioEnabled ? t.muteMic : t.unmuteMic}
+                title={`${audioEnabled ? t.muteMic : t.unmuteMic} (M)`}
               >
                 {audioEnabled ? <Mic className="w-4 h-4 sm:w-5 sm:h-5" /> : <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
@@ -144,10 +189,22 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
                     ? "bg-white/15 hover:bg-white/25 text-white active:scale-95"
                     : "bg-red-500/90 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
                 }`}
-                title={videoEnabled ? t.turnOffCam : t.turnOnCam}
+                title={`${videoEnabled ? t.turnOffCam : t.turnOnCam} (V)`}
               >
                 {videoEnabled ? <Video className="w-4 h-4 sm:w-5 sm:h-5" /> : <VideoOff className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
+
+              {/* Mobile Camera Flip (Front/Back) */}
+              {hasMultipleCameras && (
+                <button
+                  type="button"
+                  onClick={toggleCameraFacing}
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all bg-white/15 hover:bg-white/25 text-white active:scale-95 shadow-md"
+                  title={t.switchCameraTooltip}
+                >
+                  <SwitchCamera className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              )}
             </div>
 
             {/* Room badge */}

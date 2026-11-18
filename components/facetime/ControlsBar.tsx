@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Mic,
   MicOff,
@@ -12,8 +12,10 @@ import {
   Copy,
   Check,
   Users,
+  SwitchCamera,
 } from "lucide-react";
 import { useLocalParticipant, useRoomContext } from "@livekit/components-react";
+import { Track } from "livekit-client";
 import { sendReaction } from "./ReactionsOverlay";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -22,9 +24,14 @@ const EMOJIS = ["❤️", "👍", "👏", "🎉", "🔥", "😂", "👋", "🚀"
 interface ControlsBarProps {
   participantCount: number;
   onLeave: () => void;
+  initialFacingMode?: "user" | "environment";
 }
 
-export default function ControlsBar({ participantCount, onLeave }: ControlsBarProps) {
+export default function ControlsBar({
+  participantCount,
+  onLeave,
+  initialFacingMode = "user",
+}: ControlsBarProps) {
   const { t } = useLanguage();
   const room = useRoomContext();
   const {
@@ -36,16 +43,117 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">(initialFacingMode);
+  const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
+  const [isSwitchingCamera, setIsSwitchingCamera] = useState(false);
+  const [shortcutFeedback, setShortcutFeedback] = useState<string | null>(null);
+
+  // Check if device has multiple cameras (mobile phone front/back)
+  useEffect(() => {
+    const checkCameras = async () => {
+      try {
+        if (typeof navigator !== "undefined" && navigator.mediaDevices?.enumerateDevices) {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const videoInputs = devices.filter((d) => d.kind === "videoinput");
+          const isTouchOrMobile =
+            /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+            ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+          setHasMultipleCameras(videoInputs.length > 1 || isTouchOrMobile);
+        }
+      } catch (e) {}
+    };
+    checkCameras();
+  }, []);
 
   const toggleMic = async () => {
     if (localParticipant) {
-      await localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled);
+      const nextState = !isMicrophoneEnabled;
+      await localParticipant.setMicrophoneEnabled(nextState);
+      showToast(nextState ? "🎤 " + t.unmuteMic : "🔇 " + t.muteMic);
     }
   };
 
   const toggleCamera = async () => {
     if (localParticipant) {
-      await localParticipant.setCameraEnabled(!isCameraEnabled);
+      const nextState = !isCameraEnabled;
+      await localParticipant.setCameraEnabled(nextState);
+      showToast(nextState ? "📹 " + t.turnOnCam : "🚫 " + t.turnOffCam);
+    }
+  };
+
+  const showToast = (msg: string) => {
+    setShortcutFeedback(msg);
+    setTimeout(() => {
+      setShortcutFeedback((prev) => (prev === msg ? null : prev));
+    }, 1500);
+  };
+
+  // Keyboard shortcuts (Laptop/Desktop: 'M' for mic, 'V' for video)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        toggleMic();
+      } else if (e.key === "v" || e.key === "V") {
+        e.preventDefault();
+        toggleCamera();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMicrophoneEnabled, isCameraEnabled, localParticipant]);
+
+  // Flip Camera between Front ("user") and Back ("environment") on mobile phones
+  const switchCamera = async () => {
+    if (!localParticipant || isSwitchingCamera) return;
+    setIsSwitchingCamera(true);
+    const nextFacing = facingMode === "user" ? "environment" : "user";
+
+    try {
+      const videoPub = Array.from(localParticipant.videoTrackPublications.values()).find(
+        (pub) => pub.source === Track.Source.Camera
+      );
+
+      if (videoPub?.videoTrack) {
+        await videoPub.videoTrack.restartTrack({
+          facingMode: nextFacing,
+        });
+        setFacingMode(nextFacing);
+        showToast("📷 " + t.switchCameraTooltip);
+      } else {
+        setFacingMode(nextFacing);
+      }
+    } catch (err) {
+      console.warn("restartTrack with facingMode failed, falling back to device switch:", err);
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices.filter((d) => d.kind === "videoinput");
+        if (videoInputs.length > 1) {
+          const currentId = room.getActiveDevice("videoinput");
+          const nextDevice = videoInputs.find((d) => d.deviceId !== currentId) || videoInputs[0];
+          if (nextDevice) {
+            await room.switchActiveDevice("videoinput", nextDevice.deviceId);
+            setFacingMode(nextFacing);
+            showToast("📷 " + t.switchCameraTooltip);
+          }
+        }
+      } catch (e) {
+        console.error("Camera switch fallback failed:", e);
+      }
+    } finally {
+      setIsSwitchingCamera(false);
     }
   };
 
@@ -84,6 +192,13 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
 
   return (
     <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 max-w-[96vw]">
+      {/* Keyboard Shortcut Toast Notification */}
+      {shortcutFeedback && (
+        <div className="glass-panel px-4 py-1.5 rounded-full text-xs font-semibold text-white shadow-2xl border border-white/20 animate-in fade-in slide-in-from-bottom-2 duration-150">
+          {shortcutFeedback}
+        </div>
+      )}
+
       {/* Emoji Picker Popup (Floating above controls) */}
       {showEmojiPicker && (
         <div className="glass-panel px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-full flex items-center gap-1 sm:gap-2 shadow-2xl border border-white/20 animate-in fade-in slide-in-from-bottom-2 duration-200">
@@ -107,7 +222,7 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
           <span>{participantCount}</span>
         </div>
 
-        {/* Microphone */}
+        {/* Microphone (Shortcut: M) */}
         <button
           onClick={toggleMic}
           className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition duration-200 ${
@@ -115,12 +230,12 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
               ? "bg-white/15 hover:bg-white/25 text-white active:scale-95"
               : "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
           }`}
-          title={isMicrophoneEnabled ? t.muteMic : t.unmuteMic}
+          title={`${isMicrophoneEnabled ? t.muteMic : t.unmuteMic} (M)`}
         >
           {isMicrophoneEnabled ? <Mic className="w-4 h-4 sm:w-5 sm:h-5" /> : <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />}
         </button>
 
-        {/* Camera */}
+        {/* Camera (Shortcut: V) */}
         <button
           onClick={toggleCamera}
           className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition duration-200 ${
@@ -128,10 +243,26 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
               ? "bg-white/15 hover:bg-white/25 text-white active:scale-95"
               : "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
           }`}
-          title={isCameraEnabled ? t.turnOffCam : t.turnOnCam}
+          title={`${isCameraEnabled ? t.turnOffCam : t.turnOnCam} (V)`}
         >
           {isCameraEnabled ? <Video className="w-4 h-4 sm:w-5 sm:h-5" /> : <VideoOff className="w-4 h-4 sm:w-5 sm:h-5" />}
         </button>
+
+        {/* Camera Flip for Mobile Phones (Front / Back) */}
+        {hasMultipleCameras && (
+          <button
+            onClick={switchCamera}
+            disabled={isSwitchingCamera || !isCameraEnabled}
+            className="w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition duration-200 bg-white/15 hover:bg-white/25 text-white active:scale-95 disabled:opacity-40"
+            title={t.switchCameraTooltip}
+          >
+            <SwitchCamera
+              className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 ${
+                isSwitchingCamera ? "rotate-180 scale-90" : ""
+              }`}
+            />
+          </button>
+        )}
 
         {/* Screen Share */}
         <button

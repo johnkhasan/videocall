@@ -18,6 +18,7 @@ interface FaceTimeRoomProps {
   serverUrl: string;
   roomId: string;
   username: string;
+  initialFacingMode?: "user" | "environment";
 }
 
 export default function FaceTimeRoom({
@@ -25,6 +26,7 @@ export default function FaceTimeRoom({
   serverUrl,
   roomId,
   username,
+  initialFacingMode = "user",
 }: FaceTimeRoomProps) {
   const router = useRouter();
 
@@ -82,7 +84,7 @@ export default function FaceTimeRoom({
       </div>
 
       {/* Floating Bottom Controls */}
-      <RoomControls onLeave={handleDisconnected} />
+      <RoomControls onLeave={handleDisconnected} initialFacingMode={initialFacingMode} />
 
       {/* Automatically renders all incoming remote audio streams */}
       <RoomAudioRenderer />
@@ -128,12 +130,19 @@ function RoomHeader({ roomId }: { roomId: string }) {
   );
 }
 
-function RoomControls({ onLeave }: { onLeave: () => void }) {
+function RoomControls({
+  onLeave,
+  initialFacingMode,
+}: {
+  onLeave: () => void;
+  initialFacingMode?: "user" | "environment";
+}) {
   const participants = useParticipants();
   return (
     <ControlsBar
       participantCount={participants.length}
       onLeave={onLeave}
+      initialFacingMode={initialFacingMode}
     />
   );
 }

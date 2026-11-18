@@ -13,13 +13,20 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
   const [username, setUsername] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [wsUrl, setWsUrl] = useState<string | null>(null);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleJoin = async (name: string, initialAudio: boolean, initialVideo: boolean) => {
+  const handleJoin = async (
+    name: string,
+    initialAudio: boolean,
+    initialVideo: boolean,
+    initialFacing?: "user" | "environment"
+  ) => {
     setIsLoading(true);
     setError(null);
     setUsername(name);
+    if (initialFacing) setFacingMode(initialFacing);
 
     try {
       const res = await fetch(
@@ -82,6 +89,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
         serverUrl={wsUrl}
         roomId={roomId}
         username={username}
+        initialFacingMode={facingMode}
       />
     );
   }

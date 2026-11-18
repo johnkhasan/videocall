@@ -49,6 +49,18 @@ export default function ParticipantTile({
     avatarSize = "w-12 h-12 sm:w-14 sm:h-14 text-base sm:text-lg";
   }
 
+  // Check if local video should be mirrored (mirror front camera, do NOT mirror back/environment camera)
+  let isMirrored = isLocal;
+  if (isLocal && isTrackReference(trackRef) && trackRef.publication?.track) {
+    try {
+      const rawTrack = trackRef.publication.track.mediaStreamTrack;
+      const settings = rawTrack?.getSettings?.();
+      if (settings?.facingMode === "environment") {
+        isMirrored = false;
+      }
+    } catch (e) {}
+  }
+
   return (
     <div
       onClick={onClick}
@@ -66,7 +78,7 @@ export default function ParticipantTile({
     >
       {/* Video stream or Avatar fallback */}
       {hasVideo && isTrackReference(trackRef) ? (
-        <div className={`w-full h-full ${isLocal ? "video-mirrored" : ""}`}>
+        <div className={`w-full h-full ${isMirrored ? "video-mirrored" : ""}`}>
           <VideoTrack
             trackRef={trackRef}
             className="w-full h-full object-cover"
