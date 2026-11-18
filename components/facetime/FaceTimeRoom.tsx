@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   LiveKitRoom,
@@ -8,7 +8,12 @@ import {
   useParticipants,
   useRoomContext,
 } from "@livekit/components-react";
-import { RoomEvent } from "livekit-client";
+import {
+  RoomEvent,
+  VideoPresets,
+  RoomOptions,
+  RoomConnectOptions,
+} from "livekit-client";
 import VideoGrid from "./VideoGrid";
 import ControlsBar from "./ControlsBar";
 import ReactionsOverlay from "./ReactionsOverlay";
@@ -66,6 +71,58 @@ export default function FaceTimeRoom({
     router.push("/");
   };
 
+  // Ultra-low latency & high video/audio quality room options
+  const roomOptions: RoomOptions = useMemo(
+    () => ({
+      adaptiveStream: true,
+      dynacast: true,
+      stopLocalTrackOnUnpublish: true,
+      publishDefaults: {
+        simulcast: true,
+        videoCodec: "h264",
+        backupCodec: true,
+        videoEncoding: {
+          maxBitrate: 2_500_000, // 2.5 Mbps crisp 720p HD
+          maxFramerate: 30,
+        },
+        videoSimulcastLayers: [
+          VideoPresets.h540,
+          VideoPresets.h216,
+        ],
+        audioPreset: {
+          maxBitrate: 64_000, // 64 kbps studio quality Opus
+        },
+        dtx: false, // continuous audio, 0ms voice clipping
+        red: true, // redundant audio data, instant 0ms packet loss recovery
+        degradationPreference: "maintain-framerate", // fluid 30fps real-time communication
+      },
+      audioCaptureDefaults: {
+        autoGainControl: true,
+        echoCancellation: true,
+        noiseSuppression: true,
+        sampleRate: 48000,
+        channelCount: 1,
+      },
+      videoCaptureDefaults: {
+        resolution: VideoPresets.h720.resolution,
+        facingMode: initialFacingMode || "user",
+      },
+    }),
+    [initialFacingMode]
+  );
+
+  const connectOptions: RoomConnectOptions = useMemo(
+    () => ({
+      autoSubscribe: true,
+      rtcConfig: {
+        bundlePolicy: "max-bundle",
+        rtcpMuxPolicy: "require",
+        iceCandidatePoolSize: 2,
+      },
+    }),
+    []
+  );
+
   return (
     <LiveKitRoom
       token={token}
@@ -73,12 +130,17 @@ export default function FaceTimeRoom({
       connect={true}
       video={true}
       audio={true}
+      options={roomOptions}
+      connectOptions={connectOptions}
       onDisconnected={handleDisconnected}
       data-lk-theme="default"
       className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col justify-between"
     >
       {/* Sound Events for join & leave */}
       <RoomAudioEvents />
+
+      {/* Ultra-low latency playout optimizer */}
+      <LowLatencyPlayoutOptimizer />
 
       {/* Top Header Bar */}
       <RoomHeader roomId={roomId} />
@@ -96,6 +158,52 @@ export default function FaceTimeRoom({
       <RoomAudioRenderer />
     </LiveKitRoom>
   );
+}
+
+/**
+ * Optimizes WebRTC playout delay for absolute lowest latency:
+ * Configures jitterBufferTarget = 0 on all audio/video receivers
+ */
+function LowLatencyPlayoutOptimizer() {
+  const room = useRoomContext();
+
+  useEffect(() => {
+    if (!room) return;
+
+    const optimizeReceivers = () => {
+      try {
+        const pc = (room.engine as any)?.pcManager?.subscriber?.pc as RTCPeerConnection | undefined;
+        if (pc && typeof pc.getReceivers === "function") {
+          const receivers = pc.getReceivers();
+          for (const receiver of receivers) {
+            // Chrome 120+ and Safari 17.4+ support jitterBufferTarget
+            // Setting 0 tells browser to eliminate unnecessary playout buffer
+            if ("jitterBufferTarget" in receiver && (receiver as any).jitterBufferTarget !== 0) {
+              try {
+                (receiver as any).jitterBufferTarget = 0;
+              } catch (e) {}
+            }
+          }
+        }
+      } catch (err) {
+        // Safe ignore on older browsers
+      }
+    };
+
+    room.on(RoomEvent.TrackSubscribed, optimizeReceivers);
+    room.on(RoomEvent.ConnectionStateChanged, optimizeReceivers);
+
+    const interval = setInterval(optimizeReceivers, 3000);
+    optimizeReceivers();
+
+    return () => {
+      clearInterval(interval);
+      room.off(RoomEvent.TrackSubscribed, optimizeReceivers);
+      room.off(RoomEvent.ConnectionStateChanged, optimizeReceivers);
+    };
+  }, [room]);
+
+  return null;
 }
 
 /**

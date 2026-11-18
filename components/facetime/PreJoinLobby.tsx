@@ -34,8 +34,18 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
         }
 
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode },
-          audio: true,
+          video: {
+            facingMode,
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            frameRate: { ideal: 30, min: 24 },
+          },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            sampleRate: 48000,
+          },
         });
         mediaStreamRef.current = stream;
         if (videoRef.current) {
