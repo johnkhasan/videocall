@@ -75,7 +75,7 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
       t.participant;
 
     return (
-      <div className="relative w-full h-full flex flex-col p-4 pb-24 gap-3">
+      <div className="relative w-full h-full flex flex-col p-2 sm:p-4 pb-20 sm:pb-24 gap-2 sm:gap-3">
         {/* Main Screen Share Area with pause detection */}
         <ScreenShareStage
           trackRef={screenShareTrack}
@@ -83,7 +83,7 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
         />
 
         {/* Horizontal strip of participants */}
-        <div className="h-28 w-full flex items-center gap-3 overflow-x-auto pb-1">
+        <div className="h-20 sm:h-28 w-full flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 shrink-0">
           {cameraTracks.map((track) => (
             <div
               key={`${track.participant.identity}-${track.source}`}
@@ -112,9 +112,9 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
     // Sub-case: Split View (50/50 side by side)
     if (oneOnOneLayout === "split") {
       return (
-        <div className="relative w-full h-full p-3 sm:p-6 pb-24 flex flex-col items-center justify-center">
+        <div className="relative w-full h-full p-2 sm:p-6 pb-20 sm:pb-24 flex flex-col items-center justify-center">
           {/* Top layout toggle button */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
+          <div className="absolute top-3 sm:top-4 left-1/2 -translate-x-1/2 z-30">
             <button
               type="button"
               onClick={() => setOneOnOneLayout("pip")}
@@ -127,9 +127,9 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
           </div>
 
           {/* Equal 50/50 Split View */}
-          <div className="w-full max-w-7xl h-full max-h-[88vh] grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 auto-rows-fr">
+          <div className="w-full max-w-7xl h-full max-h-[85vh] grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 auto-rows-fr">
             <div
-              className="w-full h-full min-h-[220px] cursor-pointer"
+              className="w-full h-full min-h-[160px] cursor-pointer"
               onClick={() => {
                 setIs1on1Swapped(false);
                 setOneOnOneLayout("pip");
@@ -142,7 +142,7 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
               />
             </div>
             <div
-              className="w-full h-full min-h-[220px] cursor-pointer"
+              className="w-full h-full min-h-[160px] cursor-pointer"
               onClick={() => {
                 setIs1on1Swapped(true);
                 setOneOnOneLayout("pip");
@@ -163,14 +163,14 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
     return (
       <div
         ref={pipContainerRef}
-        className="relative w-full h-full p-2 sm:p-4 pb-24 flex items-center justify-center overflow-hidden"
+        className="relative w-full h-full p-1.5 sm:p-4 pb-20 sm:pb-24 flex items-center justify-center overflow-hidden"
       >
         {/* Top layout mode toggle button */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
+        <div className="absolute top-3 sm:top-4 left-1/2 -translate-x-1/2 z-20">
           <button
             type="button"
             onClick={() => setOneOnOneLayout("split")}
-            className="glass-pill px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-medium text-zinc-300 hover:text-white transition active:scale-95 shadow-lg border border-white/10"
+            className="glass-pill px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full flex items-center gap-1.5 text-xs font-medium text-zinc-300 hover:text-white transition active:scale-95 shadow-lg border border-white/10"
             title={t.splitView}
           >
             <Columns2 className="w-3.5 h-3.5 text-emerald-400" />
@@ -195,7 +195,7 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
           dragMomentum={false}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
-          className="absolute top-6 right-6 sm:top-8 sm:right-8 z-30 cursor-grab active:cursor-grabbing touch-none select-none group/pip"
+          className="absolute top-3 right-3 sm:top-8 sm:right-8 z-30 cursor-grab active:cursor-grabbing touch-none select-none group/pip"
           style={{ willChange: "transform" }}
         >
           <div className="relative">

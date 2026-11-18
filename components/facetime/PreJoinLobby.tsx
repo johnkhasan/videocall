@@ -83,20 +83,27 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-b from-[#141418] via-[#09090b] to-[#040405] text-white">
-      {/* Language Switcher in top right */}
-      <div className="absolute top-6 right-6 z-20">
+    <div className="relative min-h-[100dvh] w-full flex flex-col justify-between items-center px-4 py-3 sm:py-6 bg-gradient-to-b from-[#141418] via-[#09090b] to-[#040405] text-white overflow-y-auto overflow-x-hidden">
+      {/* Top Navbar Header */}
+      <header className="w-full max-w-4xl flex items-center justify-between pb-3 pt-1 shrink-0 z-20">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-xs shadow-md shadow-emerald-500/20">
+            FT
+          </div>
+          <span className="font-semibold text-base tracking-tight text-white">FaceTime</span>
+        </div>
         <LanguageSwitcher />
-      </div>
+      </header>
 
       {/* Background ambient lighting */}
-      <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 left-1/3 w-80 sm:w-96 h-80 sm:h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/3 w-80 sm:w-96 h-80 sm:h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center z-10">
-        {/* Left: Camera Preview Card */}
-        <div className="lg:col-span-7 flex flex-col items-center">
-          <div className="relative w-full aspect-video sm:aspect-[4/3] max-w-lg rounded-3xl overflow-hidden glass-panel border border-white/10 shadow-2xl bg-zinc-900/90 group">
+      {/* Main Content Card Container */}
+      <div className="w-full max-w-4xl my-auto py-2 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-center z-10">
+        {/* Left / Top: Camera Preview Card */}
+        <div className="lg:col-span-7 flex flex-col items-center w-full">
+          <div className="relative w-full max-w-md lg:max-w-none aspect-[4/3] sm:aspect-video rounded-3xl overflow-hidden glass-panel border border-white/10 shadow-2xl bg-zinc-900/90 group">
             {videoEnabled && hasPermission !== false ? (
               <video
                 ref={videoRef}
@@ -107,72 +114,72 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900/90 text-zinc-400">
-                <div className="w-24 h-24 rounded-full bg-zinc-800 flex items-center justify-center text-3xl font-semibold mb-3 border border-white/5 shadow-inner">
-                  {username.trim() ? username.charAt(0).toUpperCase() : <VideoOff className="w-10 h-10 text-zinc-500" />}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-zinc-800 flex items-center justify-center text-3xl font-semibold mb-3 border border-white/5 shadow-inner">
+                  {username.trim() ? username.charAt(0).toUpperCase() : <VideoOff className="w-8 h-8 sm:w-10 sm:h-10 text-zinc-500" />}
                 </div>
-                <p className="text-sm font-medium text-zinc-400">{t.cameraOff}</p>
+                <p className="text-xs sm:text-sm font-medium text-zinc-400">{t.cameraOff}</p>
               </div>
             )}
 
             {/* In-preview Floating Controls */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 glass-pill px-4 py-2 rounded-full shadow-lg">
+            <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2.5 sm:gap-3 glass-pill px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg">
               <button
                 type="button"
                 onClick={() => setAudioEnabled(!audioEnabled)}
-                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
+                className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all ${
                   audioEnabled
-                    ? "bg-white/15 hover:bg-white/25 text-white"
+                    ? "bg-white/15 hover:bg-white/25 text-white active:scale-95"
                     : "bg-red-500/90 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
                 }`}
                 title={audioEnabled ? t.muteMic : t.unmuteMic}
               >
-                {audioEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+                {audioEnabled ? <Mic className="w-4 h-4 sm:w-5 sm:h-5" /> : <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
 
               <button
                 type="button"
                 onClick={() => setVideoEnabled(!videoEnabled)}
-                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
+                className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all ${
                   videoEnabled
-                    ? "bg-white/15 hover:bg-white/25 text-white"
+                    ? "bg-white/15 hover:bg-white/25 text-white active:scale-95"
                     : "bg-red-500/90 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
                 }`}
                 title={videoEnabled ? t.turnOffCam : t.turnOnCam}
               >
-                {videoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
+                {videoEnabled ? <Video className="w-4 h-4 sm:w-5 sm:h-5" /> : <VideoOff className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
             </div>
 
             {/* Room badge */}
-            <div className="absolute top-4 left-4 flex items-center gap-2 glass-pill px-3 py-1.5 rounded-full text-xs font-medium text-zinc-300">
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-1.5 sm:gap-2 glass-pill px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-medium text-zinc-300">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>{t.room}: {roomId}</span>
             </div>
           </div>
         </div>
 
-        {/* Right: Join Info & Name Form */}
-        <div className="lg:col-span-5 flex flex-col justify-center">
-          <div className="glass-panel p-8 rounded-3xl border border-white/10 shadow-2xl">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-                <Users className="w-5 h-5" />
+        {/* Right / Bottom: Join Info & Name Form */}
+        <div className="lg:col-span-5 flex flex-col justify-center w-full">
+          <div className="w-full max-w-md mx-auto lg:max-w-none glass-panel p-5 sm:p-7 rounded-3xl border border-white/10 shadow-2xl">
+            <div className="flex items-center gap-2.5 sm:gap-3 mb-1.5 sm:mb-2">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-white">{t.lobbyTitle}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">{t.lobbyTitle}</h1>
             </div>
-            <p className="text-sm text-zinc-400 mb-6">
+            <p className="text-xs sm:text-sm text-zinc-400 mb-4 sm:mb-5">
               {t.lobbySubtitle}
             </p>
 
             {/* Shareable Link Box */}
-            <div className="mb-6 p-3 rounded-2xl bg-zinc-900/80 border border-white/5 flex items-center justify-between gap-2">
-              <div className="truncate text-xs text-zinc-400 select-all">
+            <div className="mb-4 sm:mb-5 p-2.5 sm:p-3 rounded-2xl bg-zinc-900/80 border border-white/5 flex items-center justify-between gap-2 overflow-hidden">
+              <div className="truncate text-xs text-zinc-400 select-all font-mono min-w-0 flex-1">
                 {typeof window !== "undefined" ? window.location.href : roomId}
               </div>
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white transition shrink-0"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 active:scale-95 text-white transition shrink-0"
               >
                 {copied ? (
                   <>
@@ -188,7 +195,7 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
               <div>
                 <label htmlFor="name-input" className="block text-xs font-medium text-zinc-300 mb-1.5">
                   {t.nameInputLabel}
@@ -200,7 +207,7 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
                   placeholder={t.nameInputPlaceholder}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-zinc-800/80 border border-white/10 text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
+                  className="w-full px-4 py-3 rounded-2xl bg-zinc-800/80 border border-white/10 text-white placeholder-zinc-500 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
                   autoFocus
                 />
               </div>
@@ -208,19 +215,24 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
               <button
                 type="submit"
                 disabled={!username.trim()}
-                className="w-full py-3.5 px-6 rounded-2xl font-semibold text-sm bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 text-black shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition duration-200"
+                className="w-full py-3.5 px-6 rounded-2xl font-semibold text-base sm:text-sm bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 text-black shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition duration-200 active:scale-98"
               >
                 <span>{t.joinRoomBtn}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
 
-            <div className="mt-6 pt-5 border-t border-white/5 flex items-center justify-center gap-2 text-xs text-zinc-500">
+            <div className="mt-4 sm:mt-5 pt-3.5 sm:pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-[11px] sm:text-xs text-zinc-500">
               <Shield className="w-3.5 h-3.5 text-emerald-400/80" />
               <span>{t.secureConnection}</span>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Subtle bottom footer text */}
+      <div className="w-full text-center py-2 text-[11px] text-zinc-600 shrink-0">
+        FaceTime WebRTC Encrypted
       </div>
     </div>
   );

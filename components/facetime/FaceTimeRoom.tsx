@@ -70,7 +70,7 @@ export default function FaceTimeRoom({
       audio={true}
       onDisconnected={handleDisconnected}
       data-lk-theme="default"
-      className="relative w-screen h-screen overflow-hidden bg-black flex flex-col justify-between"
+      className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col justify-between"
     >
       {/* Top Header Bar */}
       <RoomHeader roomId={roomId} />
@@ -108,9 +108,9 @@ function RoomHeader({ roomId }: { roomId: string }) {
   };
 
   return (
-    <header className="absolute top-4 left-0 right-0 z-40 px-6 flex items-center justify-between pointer-events-none">
+    <header className="absolute top-[max(0.75rem,env(safe-area-inset-top))] left-0 right-0 z-40 px-3 sm:px-6 flex items-center justify-between pointer-events-none">
       <div className="flex items-center gap-2 pointer-events-auto">
-        <div className="glass-pill px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-semibold text-white/90 shadow-md">
+        <div className="glass-pill px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full flex items-center gap-2 text-xs font-semibold text-white/90 shadow-md">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span>FaceTime</span>
           <span className="text-white/40">|</span>
@@ -119,9 +119,9 @@ function RoomHeader({ roomId }: { roomId: string }) {
       </div>
 
       <div className="flex items-center gap-2 pointer-events-auto">
-        <div className="glass-pill px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs text-zinc-300">
+        <div className="glass-pill px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full flex items-center gap-1.5 text-xs text-zinc-300">
           <Shield className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="hidden sm:inline font-mono">{roomId}</span>
+          <span className="font-mono text-[11px] sm:text-xs">{roomId}</span>
         </div>
       </div>
     </header>

@@ -25,6 +25,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -39,7 +40,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
-      <body className="bg-black text-white antialiased min-h-screen w-screen overflow-hidden">
+      <body className="bg-black text-white antialiased min-h-[100dvh] w-full overflow-x-hidden">
         <LanguageProvider>
           {children}
           <PWAInstaller />

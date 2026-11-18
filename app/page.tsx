@@ -154,7 +154,7 @@ export default function HomePage() {
                 placeholder={t.roomInputPlaceholder}
                 value={inputCode}
                 onChange={(e) => setInputCode(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl bg-zinc-800/80 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition"
+                className="w-full px-4 py-3 rounded-2xl bg-zinc-800/80 border border-white/10 text-white placeholder-zinc-500 text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition"
               />
 
               <button

@@ -44,9 +44,9 @@ export default function ParticipantTile({
   // Size calculations for avatar
   let avatarSize = "w-20 h-20 sm:w-28 sm:h-28 text-3xl sm:text-4xl";
   if (isCompact) {
-    avatarSize = "w-11 h-11 sm:w-12 sm:h-12 text-base sm:text-lg";
+    avatarSize = "w-10 h-10 sm:w-12 sm:h-12 text-sm sm:text-base";
   } else if (is1on1PiP) {
-    avatarSize = "w-12 h-12 sm:w-14 sm:h-14 text-lg sm:text-xl";
+    avatarSize = "w-12 h-12 sm:w-14 sm:h-14 text-base sm:text-lg";
   }
 
   return (
@@ -60,7 +60,7 @@ export default function ParticipantTile({
           : "border border-white/10 hover:border-white/20"
       } ${
         is1on1PiP
-          ? "w-40 sm:w-56 aspect-[3/4] shadow-2xl border-2 border-white/20"
+          ? "w-28 sm:w-44 md:w-56 aspect-[3/4] shadow-2xl border-2 border-white/20"
           : "w-full h-full"
       } ${className}`}
     >
@@ -73,8 +73,8 @@ export default function ParticipantTile({
           />
         </div>
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-900 to-zinc-950 p-2">
-          <div className="relative flex items-center justify-center">
+        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-900 to-zinc-950 p-2 overflow-hidden">
+          <div className="relative flex items-center justify-center shrink-0">
             <div
               className={`rounded-full flex items-center justify-center font-bold text-white shadow-xl transition-all duration-300 shrink-0 select-none ${avatarSize} ${
                 is1on1PiP || isCompact
@@ -86,7 +86,7 @@ export default function ParticipantTile({
                   : "border border-white/10"
               }`}
             >
-              <span>{initial}</span>
+              <span className="leading-none">{initial}</span>
             </div>
 
             {/* Speaking audio ripple */}
