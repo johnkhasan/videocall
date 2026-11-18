@@ -55,6 +55,8 @@ export interface Translations {
   waitingTitle: string;
   waitingDesc: string;
   screenSharingText: string;
+  screenSharePaused: string;
+  screenSharePausedDesc: string;
   you: string;
   participant: string;
   screenShareToggleOn: string;
@@ -125,6 +127,9 @@ const translations: Record<Language, Translations> = {
     waitingDesc:
       "Qoʻngʻiroqqa qoʻshilishlari uchun ushbu havolani doʻstlaringizga yuboring.",
     screenSharingText: "ekranini ulashmoqda",
+    screenSharePaused: "Ekran ulashish toʻxtatib turildi",
+    screenSharePausedDesc:
+      "Foydalanuvchi boshqa ilovaga yoki tabga oʻtdi. Brauzerga qaytishi bilan efir davom etadi.",
     you: "Siz",
     participant: "Ishtirokchi",
     screenShareToggleOn: "Ekran ulashishni toʻxtatish",
@@ -192,6 +197,9 @@ const translations: Record<Language, Translations> = {
     waitingDesc:
       "Share this invite link with your friends or colleagues to start the call.",
     screenSharingText: "is sharing screen",
+    screenSharePaused: "Screen sharing paused",
+    screenSharePausedDesc:
+      "The participant switched to another app or tab. It will resume once they return.",
     you: "You",
     participant: "Participant",
     screenShareToggleOn: "Stop sharing screen",
@@ -259,6 +267,9 @@ const translations: Record<Language, Translations> = {
     waitingDesc:
       "Отправьте эту ссылку друзьям или коллегам, чтобы они присоединились.",
     screenSharingText: "демонстрирует экран",
+    screenSharePaused: "Демонстрация экрана приостановлена",
+    screenSharePausedDesc:
+      "Участник переключился на другое приложение или вкладку. Показ возобновится при возвращении.",
     you: "Вы",
     participant: "Участник",
     screenShareToggleOn: "Остановить показ экрана",

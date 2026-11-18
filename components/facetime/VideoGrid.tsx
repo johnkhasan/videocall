@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { Track } from "livekit-client";
 import {
   useTracks,
@@ -9,7 +9,7 @@ import {
   isTrackReference,
 } from "@livekit/components-react";
 import ParticipantTile from "./ParticipantTile";
-import { Copy, Users } from "lucide-react";
+import { Copy, Users, Pause, MonitorPlay } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface VideoGridProps {
@@ -54,23 +54,26 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
 
   // CASE 1: Active Screen Share View
   if (screenShareTrack && isTrackReference(screenShareTrack)) {
+    const participantName =
+      screenShareTrack.participant.name ||
+      screenShareTrack.participant.identity ||
+      t.participant;
+
     return (
       <div className="relative w-full h-full flex flex-col p-4 pb-24 gap-3">
-        {/* Main Screen Share Area */}
-        <div className="flex-1 w-full relative rounded-3xl overflow-hidden glass-panel border border-white/10 bg-black flex items-center justify-center">
-          <VideoTrack
-            trackRef={screenShareTrack}
-            className="w-full h-full object-contain"
-          />
-          <div className="absolute top-4 left-4 glass-pill px-3 py-1 rounded-full text-xs text-white/90">
-            {screenShareTrack.participant.name || screenShareTrack.participant.identity} {t.screenSharingText}
-          </div>
-        </div>
+        {/* Main Screen Share Area with pause detection */}
+        <ScreenShareStage
+          trackRef={screenShareTrack}
+          participantName={participantName}
+        />
 
         {/* Horizontal strip of participants */}
         <div className="h-28 w-full flex items-center gap-3 overflow-x-auto pb-1">
           {cameraTracks.map((track) => (
-            <div key={`${track.participant.identity}-${track.source}`} className="h-full aspect-video shrink-0">
+            <div
+              key={`${track.participant.identity}-${track.source}`}
+              className="h-full aspect-video shrink-0"
+            >
               <ParticipantTile
                 trackRef={track}
                 isLocal={track.participant.isLocal}
@@ -129,9 +132,7 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-white">{t.waitingTitle}</h3>
-            <p className="text-xs text-zinc-400">
-              {t.waitingDesc}
-            </p>
+            <p className="text-xs text-zinc-400">{t.waitingDesc}</p>
           </div>
           <button
             onClick={handleCopyLink}
@@ -171,6 +172,113 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
             />
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * ScreenShareStage:
+ * Handles screen sharing stream rendering, track mute events (e.g. mobile app switching),
+ * and automatic unpausing upon returning to the browser.
+ */
+function ScreenShareStage({
+  trackRef,
+  participantName,
+}: {
+  trackRef: any;
+  participantName: string;
+}) {
+  const { t } = useLanguage();
+  const [isMuted, setIsMuted] = useState<boolean>(() => {
+    return Boolean(
+      trackRef.publication?.isMuted || trackRef.publication?.track?.isMuted
+    );
+  });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const pub = trackRef.publication;
+    if (!pub) return;
+
+    const onMuted = () => setIsMuted(true);
+    const onUnmuted = () => setIsMuted(false);
+
+    pub.on("muted", onMuted);
+    pub.on("unmuted", onUnmuted);
+    if (pub.track) {
+      pub.track.on("muted", onMuted);
+      pub.track.on("unmuted", onUnmuted);
+    }
+
+    setIsMuted(Boolean(pub.isMuted || pub.track?.isMuted));
+
+    return () => {
+      pub.off("muted", onMuted);
+      pub.off("unmuted", onUnmuted);
+      if (pub.track) {
+        pub.track.off("muted", onMuted);
+        pub.track.off("unmuted", onUnmuted);
+      }
+    };
+  }, [trackRef]);
+
+  // When returning from background/tab, unpause video element
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        if (containerRef.current) {
+          const videos = containerRef.current.querySelectorAll("video");
+          videos.forEach((video) => {
+            if (video.paused) {
+              video.play().catch(() => {});
+            }
+          });
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="flex-1 w-full relative rounded-3xl overflow-hidden glass-panel border border-white/10 bg-black flex items-center justify-center shadow-2xl"
+    >
+      <VideoTrack
+        trackRef={trackRef}
+        className="w-full h-full object-contain"
+      />
+
+      {/* Paused Overlay (App switched / Tab minimized on phone) */}
+      {isMuted && (
+        <div className="absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-200 z-20">
+          <div className="w-16 h-16 rounded-3xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center mb-4 shadow-xl shadow-amber-500/10">
+            <Pause className="w-8 h-8" />
+          </div>
+          <h3 className="text-base sm:text-lg font-bold text-white mb-2">
+            {t.screenSharePaused}
+          </h3>
+          <p className="text-xs sm:text-sm text-zinc-400 max-w-md leading-relaxed">
+            {t.screenSharePausedDesc}
+          </p>
+          <div className="mt-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-xs text-zinc-300 border border-white/10">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+            <span className="font-medium">{participantName}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Participant info badge */}
+      <div className="absolute top-4 left-4 glass-pill px-3.5 py-1.5 rounded-full text-xs text-white/90 z-10 flex items-center gap-2 shadow-lg">
+        <MonitorPlay className="w-3.5 h-3.5 text-blue-400" />
+        <span className="font-medium">{participantName}</span>
+        <span className="text-white/40">&bull;</span>
+        <span className="text-zinc-300">{t.screenSharingText}</span>
       </div>
     </div>
   );

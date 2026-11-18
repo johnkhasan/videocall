@@ -28,6 +28,35 @@ export default function FaceTimeRoom({
 }: FaceTimeRoomProps) {
   const router = useRouter();
 
+  // Mobile wakeLock & auto-resume video when returning from background
+  useEffect(() => {
+    let wakeLock: any = null;
+    const requestWake = async () => {
+      if (typeof navigator !== "undefined" && "wakeLock" in navigator) {
+        try {
+          wakeLock = await (navigator as any).wakeLock.request("screen");
+        } catch (e) {}
+      }
+    };
+    requestWake();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        requestWake();
+        // Resume all videos when returning to browser tab
+        document.querySelectorAll("video").forEach((video) => {
+          if (video.paused) video.play().catch(() => {});
+        });
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      if (wakeLock) wakeLock.release().catch(() => {});
+    };
+  }, []);
+
   const handleDisconnected = () => {
     router.push("/");
   };

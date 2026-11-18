@@ -52,7 +52,17 @@ export default function ControlsBar({ participantCount, onLeave }: ControlsBarPr
   const toggleScreenShare = async () => {
     if (localParticipant) {
       try {
-        await localParticipant.setScreenShareEnabled(!isScreenShareEnabled);
+        if (!isScreenShareEnabled) {
+          await localParticipant.setScreenShareEnabled(true, {
+            audio: false,
+            selfBrowserSurface: "exclude",
+            surfaceSwitching: "include",
+            preferCurrentTab: false,
+            resolution: { width: 1280, height: 720, frameRate: 15 },
+          });
+        } else {
+          await localParticipant.setScreenShareEnabled(false);
+        }
       } catch (e) {
         console.warn("Screen share cancelled or failed:", e);
       }
