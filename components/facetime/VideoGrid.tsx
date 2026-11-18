@@ -74,6 +74,7 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
               <ParticipantTile
                 trackRef={track}
                 isLocal={track.participant.isLocal}
+                isCompact={true}
               />
             </div>
           ))}
@@ -166,6 +167,7 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
             <ParticipantTile
               trackRef={track}
               isLocal={track.participant.isLocal}
+              isCompact={totalCount >= 6}
             />
           </div>
         ))}
