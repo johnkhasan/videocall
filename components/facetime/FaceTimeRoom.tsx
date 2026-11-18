@@ -1,0 +1,110 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  LiveKitRoom,
+  RoomAudioRenderer,
+  useParticipants,
+  ConnectionStateToast,
+} from "@livekit/components-react";
+import VideoGrid from "./VideoGrid";
+import ControlsBar from "./ControlsBar";
+import ReactionsOverlay from "./ReactionsOverlay";
+import { Shield, Sparkles } from "lucide-react";
+
+interface FaceTimeRoomProps {
+  token: string;
+  serverUrl: string;
+  roomId: string;
+  username: string;
+}
+
+export default function FaceTimeRoom({
+  token,
+  serverUrl,
+  roomId,
+  username,
+}: FaceTimeRoomProps) {
+  const router = useRouter();
+
+  const handleDisconnected = () => {
+    router.push("/");
+  };
+
+  return (
+    <LiveKitRoom
+      token={token}
+      serverUrl={serverUrl}
+      connect={true}
+      video={true}
+      audio={true}
+      onDisconnected={handleDisconnected}
+      data-lk-theme="default"
+      className="relative w-screen h-screen overflow-hidden bg-black flex flex-col justify-between"
+    >
+      {/* Top Header Bar */}
+      <RoomHeader roomId={roomId} />
+
+      {/* Main FaceTime Video Stage */}
+      <div className="flex-1 w-full h-full relative overflow-hidden flex items-center justify-center">
+        <VideoGrid roomId={roomId} />
+        <ReactionsOverlay />
+      </div>
+
+      {/* Floating Bottom Controls */}
+      <RoomControls onLeave={handleDisconnected} />
+
+      {/* Automatically renders all incoming remote audio streams */}
+      <RoomAudioRenderer />
+    </LiveKitRoom>
+  );
+}
+
+function RoomHeader({ roomId }: { roomId: string }) {
+  const [seconds, setSeconds] = useState(0);
+
+  // Call duration timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (totalSeconds: number) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <header className="absolute top-4 left-0 right-0 z-40 px-6 flex items-center justify-between pointer-events-none">
+      <div className="flex items-center gap-2 pointer-events-auto">
+        <div className="glass-pill px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-semibold text-white/90 shadow-md">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>FaceTime</span>
+          <span className="text-white/40">|</span>
+          <span className="text-zinc-300 font-mono">{formatTime(seconds)}</span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 pointer-events-auto">
+        <div className="glass-pill px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs text-zinc-300">
+          <Shield className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="hidden sm:inline font-mono">{roomId}</span>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function RoomControls({ onLeave }: { onLeave: () => void }) {
+  const participants = useParticipants();
+  return (
+    <ControlsBar
+      participantCount={participants.length}
+      onLeave={onLeave}
+    />
+  );
+}
