@@ -18,6 +18,7 @@ import {
   Columns2,
   Maximize2,
   Move,
+  LayoutGrid,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { motion } from "framer-motion";
@@ -33,6 +34,7 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
   // 1-on-1 state: swap who is main vs PiP, and split view vs PiP view
   const [is1on1Swapped, setIs1on1Swapped] = useState(false);
   const [oneOnOneLayout, setOneOnOneLayout] = useState<"pip" | "split">("pip");
+  const [spotlightParticipantId, setSpotlightParticipantId] = useState<string | null>(null);
   const pipContainerRef = useRef<HTMLDivElement>(null);
 
   // Get camera tracks (with placeholder so tiles render even when camera is off)
@@ -264,6 +266,64 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
 
   // CASE 4: Group FaceTime Mode (3+ participants)
   const totalCount = cameraTracks.length;
+
+  // Sub-case: Spotlight / Focus View (When a user clicked on a participant to enlarge them)
+  const spotlightTrack = spotlightParticipantId
+    ? cameraTracks.find((t) => t.participant.identity === spotlightParticipantId)
+    : null;
+
+  if (spotlightTrack) {
+    const otherTracks = cameraTracks.filter(
+      (t) => t.participant.identity !== spotlightParticipantId
+    );
+
+    return (
+      <div className="relative w-full h-full p-2 sm:p-4 pb-20 sm:pb-24 flex flex-col md:flex-row gap-2.5 sm:gap-4 items-center justify-center overflow-hidden">
+        {/* Top return-to-grid button */}
+        <div className="absolute top-3 sm:top-4 left-1/2 -translate-x-1/2 z-30">
+          <button
+            type="button"
+            onClick={() => setSpotlightParticipantId(null)}
+            className="glass-pill px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-medium text-white/90 hover:text-white transition active:scale-95 shadow-lg border border-white/10"
+            title={t.gridMode}
+          >
+            <LayoutGrid className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{t.gridMode}</span>
+          </button>
+        </div>
+
+        {/* Main Big Stage (Spotlight Participant) */}
+        <div className="flex-1 w-full h-full max-h-[88vh] rounded-3xl overflow-hidden shadow-2xl relative min-h-0">
+          <ParticipantTile
+            trackRef={spotlightTrack}
+            isLocal={spotlightTrack.participant.isLocal}
+            className="rounded-3xl cursor-pointer"
+            onClick={() => setSpotlightParticipantId(null)}
+          />
+        </div>
+
+        {/* Side / Bottom Strip of Other Participants */}
+        <div className="w-full md:w-64 lg:w-72 h-24 md:h-full max-h-[88vh] flex md:flex-col gap-2 sm:gap-3 overflow-x-auto md:overflow-y-auto shrink-0 pb-1">
+          {otherTracks.map((track) => (
+            <div
+              key={`${track.participant.identity}-${track.source}`}
+              onClick={() => setSpotlightParticipantId(track.participant.identity)}
+              className="h-full aspect-video md:h-36 md:w-full md:aspect-auto shrink-0 cursor-pointer transition-transform hover:scale-[1.02] active:scale-95"
+              title="Kattalashtirish (Focus)"
+            >
+              <ParticipantTile
+                trackRef={track}
+                isLocal={track.participant.isLocal}
+                isCompact={true}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Sub-case: Equal Grid View
   let gridCols = "grid-cols-1 sm:grid-cols-2";
   if (totalCount >= 5) {
     gridCols = "grid-cols-2 lg:grid-cols-3";
@@ -272,14 +332,16 @@ export default function VideoGrid({ roomId }: VideoGridProps) {
   }
 
   return (
-    <div className="w-full h-full p-3 sm:p-6 pb-24 overflow-y-auto flex items-center justify-center">
+    <div className="w-full h-full p-2.5 sm:p-6 pb-20 sm:pb-24 overflow-y-auto flex items-center justify-center">
       <div
-        className={`w-full max-w-7xl h-full max-h-[88vh] grid ${gridCols} gap-3 sm:gap-4 auto-rows-fr`}
+        className={`w-full max-w-7xl h-full max-h-[88vh] grid ${gridCols} gap-2.5 sm:gap-4 auto-rows-fr`}
       >
         {cameraTracks.map((track) => (
           <div
             key={`${track.participant.identity}-${track.source}`}
-            className="w-full h-full min-h-[200px]"
+            onClick={() => setSpotlightParticipantId(track.participant.identity)}
+            className="w-full h-full min-h-[160px] sm:min-h-[200px] cursor-pointer transition-transform hover:scale-[1.01] active:scale-[0.99]"
+            title="Kattalashtirish uchun bosing"
           >
             <ParticipantTile
               trackRef={track}

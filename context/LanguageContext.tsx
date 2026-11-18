@@ -67,6 +67,7 @@ export interface Translations {
   switchCameraTooltip: string;
   splitView: string;
   pipView: string;
+  gridMode: string;
   connectingText: string;
   connectionError: string;
   retryBtn: string;
@@ -144,6 +145,7 @@ const translations: Record<Language, Translations> = {
     switchCameraTooltip: "Kamerani almashtirish (Oldi / Orqa)",
     splitView: "Yonma-yon (50/50)",
     pipView: "PiP koʻrinishi",
+    gridMode: "Setka koʻrinishi",
     connectingText: "FaceTime xonasiga ulanmoqda...",
     connectionError: "Ulanishda xatolik yuz berdi",
     retryBtn: "Qaytadan urinish",
@@ -218,6 +220,7 @@ const translations: Record<Language, Translations> = {
     switchCameraTooltip: "Switch camera (Front / Back)",
     splitView: "Split View (50/50)",
     pipView: "PiP View",
+    gridMode: "Grid View",
     connectingText: "Connecting to FaceTime room...",
     connectionError: "Failed to connect to room",
     retryBtn: "Try Again",
@@ -292,6 +295,7 @@ const translations: Record<Language, Translations> = {
     switchCameraTooltip: "Переключить камеру (Передняя / Задняя)",
     splitView: "Рядом (50/50)",
     pipView: "Режим PiP",
+    gridMode: "Сетка",
     connectingText: "Подключение к комнате FaceTime...",
     connectionError: "Ошибка подключения к комнате",
     retryBtn: "Попробовать снова",
