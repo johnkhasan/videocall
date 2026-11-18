@@ -81,8 +81,8 @@ const translations: Record<Language, Translations> = {
   uz: {
     appTitle: "FaceTime",
     room: "Xona",
-    livekitBadge: "WebRTC LiveKit",
-    secureConnection: "FaceTime himoyalangan WebRTC ulanishi",
+    livekitBadge: "HD Video",
+    secureConnection: "Xavfsiz va shifrlangan aloqa",
 
     heroBadge: "Kristalldek tiniq video va audio qoʻngʻiroqlar",
     heroTitle: "Xuddi",
@@ -109,9 +109,9 @@ const translations: Record<Language, Translations> = {
     feature2Desc: "Prezentatsiya va videolarni birgalikda koʻrish.",
     feature3Title: "Jonli Reaksiyalar",
     feature3Desc: "Suzuvchi Apple animatsiyali emojilar.",
-    feature4Title: "Xavfsiz WebRTC",
-    feature4Desc: "LiveKit SFU yuqori tezlik va past kechikish.",
-    footerText: "FaceTime Web • Next.js & LiveKit WebRTC bilan yaratilgan",
+    feature4Title: "Yuqori Sifat & Xavfsizlik",
+    feature4Desc: "Kristalldek tiniq HD audio/video va toʻliq shifrlangan aloqa.",
+    footerText: "FaceTime Web • Tezkor, xavfsiz va qulay video qoʻngʻiroqlar",
 
     lobbyTitle: "FaceTime Qoʻngʻiroq",
     lobbySubtitle:
@@ -154,8 +154,8 @@ const translations: Record<Language, Translations> = {
   en: {
     appTitle: "FaceTime",
     room: "Room",
-    livekitBadge: "WebRTC LiveKit",
-    secureConnection: "FaceTime encrypted WebRTC connection",
+    livekitBadge: "HD Video",
+    secureConnection: "End-to-End Encrypted Call",
 
     heroBadge: "Crystal-clear video and audio calls",
     heroTitle: "Just like",
@@ -182,9 +182,9 @@ const translations: Record<Language, Translations> = {
     feature2Desc: "Share presentations, windows, and apps in real-time.",
     feature3Title: "Live Reactions",
     feature3Desc: "Floating animated emoji reactions just like Apple FaceTime.",
-    feature4Title: "Ultra-Fast WebRTC",
-    feature4Desc: "LiveKit SFU engine with adaptive bitrate & minimal latency.",
-    footerText: "FaceTime Web • Built with Next.js & LiveKit WebRTC",
+    feature4Title: "HD Quality & Security",
+    feature4Desc: "Crystal-clear HD audio/video and fully encrypted communication.",
+    footerText: "FaceTime Web • Fast, secure and crystal-clear video calls",
 
     lobbyTitle: "FaceTime Call",
     lobbySubtitle:
@@ -227,8 +227,8 @@ const translations: Record<Language, Translations> = {
   ru: {
     appTitle: "FaceTime",
     room: "Комната",
-    livekitBadge: "WebRTC LiveKit",
-    secureConnection: "Защищенное WebRTC соединение FaceTime",
+    livekitBadge: "HD Видео",
+    secureConnection: "Защищенный зашифрованный звонок",
 
     heroBadge: "Кристально чистые видео и аудио звонки",
     heroTitle: "Прямо как",
@@ -255,9 +255,9 @@ const translations: Record<Language, Translations> = {
     feature2Desc: "Показывайте презентации, видео и рабочий стол.",
     feature3Title: "Живые реакции",
     feature3Desc: "Всплывающие анимированные эмодзи в стиле Apple.",
-    feature4Title: "Быстрый WebRTC",
-    feature4Desc: "LiveKit SFU сервер с минимальной задержкой звука и видео.",
-    footerText: "FaceTime Web • Создано на Next.js и LiveKit WebRTC",
+    feature4Title: "HD Качество и Защита",
+    feature4Desc: "Кристально чистое видео, чистый звук и полная безопасность.",
+    footerText: "FaceTime Web • Быстрые, защищенные и удобные видеозвонки",
 
     lobbyTitle: "Звонок FaceTime",
     lobbySubtitle:

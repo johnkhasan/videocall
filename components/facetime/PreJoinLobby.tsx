@@ -229,11 +229,6 @@ export default function PreJoinLobby({ roomId, onJoin }: PreJoinLobbyProps) {
           </div>
         </div>
       </div>
-
-      {/* Subtle bottom footer text */}
-      <div className="w-full text-center py-2 text-[11px] text-zinc-600 shrink-0">
-        FaceTime WebRTC Encrypted
-      </div>
     </div>
   );
 }

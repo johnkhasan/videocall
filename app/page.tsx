@@ -79,11 +79,6 @@ export default function HomePage() {
 
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
-
-          <div className="hidden sm:flex glass-pill px-3.5 py-1.5 rounded-full items-center gap-2 text-xs text-zinc-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>{t.livekitBadge}</span>
-          </div>
         </div>
       </nav>
 
